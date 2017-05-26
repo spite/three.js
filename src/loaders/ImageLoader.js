@@ -18,69 +18,81 @@ Object.assign( ImageLoader.prototype, {
 
 		if ( url === undefined ) url = '';
 
-		if ( this.path !== undefined ) url = this.path + url;
+			if ( this.path !== undefined ) url = this.path + url;
 
-		var scope = this;
+			var scope = this;
 
-		var cached = Cache.get( url );
+			var cached = Cache.get( url );
 
-		if ( cached !== undefined ) {
+			if ( cached !== undefined ) {
 
-			scope.manager.itemStart( url );
+				scope.manager.itemStart( url );
 
-			setTimeout( function () {
+				setTimeout( function () {
 
-				if ( onLoad ) onLoad( cached );
+					if ( onLoad ) onLoad( cached );
+
+					scope.manager.itemEnd( url );
+
+				}, 0 );
+
+				return cached;
+
+			}
+
+			fetch( url )
+				.then( res => res.blob() )
+				.then( res => createImageBitmap( res, { imageOrientation: 'flipY' } ) )
+				.then( res => {
+
+					Cache.add( url, res );
+
+					if ( onLoad ) onLoad( res );
+
+					scope.manager.itemEnd( url );
+
+				});
+
+			var image = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'img' );
+			/*
+			image.addEventListener( 'load', function () {
+
+				Cache.add( url, this );
+
+				if ( onLoad ) onLoad( this );
 
 				scope.manager.itemEnd( url );
 
-			}, 0 );
+			}, false );
 
-			return cached;
+			/*
+			image.addEventListener( 'progress', function ( event ) {
 
-		}
+				if ( onProgress ) onProgress( event );
 
-		var image = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'img' );
+			}, false );
+			*/
 
-		image.addEventListener( 'load', function () {
+			/*image.addEventListener( 'error', function ( event ) {
 
-			Cache.add( url, this );
+				if ( onError ) onError( event );
 
-			if ( onLoad ) onLoad( this );
+				scope.manager.itemEnd( url );
+				scope.manager.itemError( url );
 
-			scope.manager.itemEnd( url );
+			}, false );*/
 
-		}, false );
+			/*if ( url.substr( 0, 5 ) !== 'data:' ) {
 
-		/*
-		image.addEventListener( 'progress', function ( event ) {
+				if ( this.crossOrigin !== undefined ) image.crossOrigin = this.crossOrigin;
 
-			if ( onProgress ) onProgress( event );
+			}*/
 
-		}, false );
-		*/
+			scope.manager.itemStart( url );
 
-		image.addEventListener( 'error', function ( event ) {
+			/*image.src = url;*/
 
-			if ( onError ) onError( event );
-
-			scope.manager.itemEnd( url );
-			scope.manager.itemError( url );
-
-		}, false );
-
-		if ( url.substr( 0, 5 ) !== 'data:' ) {
-
-			if ( this.crossOrigin !== undefined ) image.crossOrigin = this.crossOrigin;
-
-		}
-
-		scope.manager.itemStart( url );
-
-		image.src = url;
-
-		return image;
-
+			return image;
 	},
 
 	setCrossOrigin: function ( value ) {
