@@ -12,6 +12,52 @@ function ImageLoader( manager ) {
 
 }
 
+function detect () {
+
+	return new Promise( ( resolve, reject ) => {
+
+		if( !( 'createImageBitmap' in window ) ) {
+			console.log( 'nay (no API)' );
+			resolve( false );
+		}
+
+		var canvas = document.createElement( 'canvas' );
+		canvas.width = 1;
+		canvas.height = 2;
+		var ctx = canvas.getContext( '2d' );
+
+		var data = ctx.getImageData( 0, 0, 1, 2 );
+		data.data[ 1 ] = 255;
+		data.data[ 3 ] = 255;
+		data.data[ 4 ] = 255;
+		data.data[ 6 ] = 255;
+		data.data[ 7 ] = 255;
+		ctx.putImageData( data, 0, 0 );
+
+		createImageBitmap( canvas, 0, 0, 1, 2, { imageOrientation: 'flipY'} ).then( res => {
+
+			var canvasTest = document.createElement( 'canvas' );
+			canvasTest.width = 1;
+			canvasTest.height = 2;
+			var ctxTest = canvasTest.getContext( '2d' );
+			ctxTest.drawImage( imageBitmap, 0, 0 )
+			var dataTest = ctxTest.getImageData( 0, 0, 1, 2 );
+			if( dataTest.data[ 0 ] === 255 && dataTest.data[ 1 ] === 0 && dataTest.data[ 2 ] === 255 ) resolve( true );
+			else resolve( false ) ;
+			document.body.appendChild( canvasTest );
+
+			document.body.appendChild( canvas );
+
+			resolve( false );
+
+		})
+
+	})
+
+}
+
+let res = detect();
+
 Object.assign( ImageLoader.prototype, {
 
 	load: function ( url, onLoad, onProgress, onError ) {
