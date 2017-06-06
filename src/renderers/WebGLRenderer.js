@@ -783,12 +783,15 @@ function WebGLRenderer( parameters ) {
 
 		}
 
+		var attribute;
 		var renderer = bufferRenderer;
 
 		if ( index !== null ) {
 
+			attribute = attributes.get( index );
+
 			renderer = indexedBufferRenderer;
-			renderer.setIndex( index );
+			renderer.setIndex( attribute );
 
 		}
 
@@ -798,7 +801,7 @@ function WebGLRenderer( parameters ) {
 
 			if ( index !== null ) {
 
-				_gl.bindBuffer( _gl.ELEMENT_ARRAY_BUFFER, attributes.get( index ).buffer );
+				_gl.bindBuffer( _gl.ELEMENT_ARRAY_BUFFER, attribute.buffer );
 
 			}
 
@@ -941,11 +944,11 @@ function WebGLRenderer( parameters ) {
 					var normalized = geometryAttribute.normalized;
 					var size = geometryAttribute.itemSize;
 
-					var attributeProperties = attributes.get( geometryAttribute );
+					var attribute = attributes.get( geometryAttribute );
 
-					var buffer = attributeProperties.buffer;
-					var type = attributeProperties.type;
-					var bytesPerElement = attributeProperties.bytesPerElement;
+					var buffer = attribute.buffer;
+					var type = attribute.type;
+					var bytesPerElement = attribute.bytesPerElement;
 
 					if ( geometryAttribute.isInterleavedBufferAttribute ) {
 
@@ -1100,8 +1103,6 @@ function WebGLRenderer( parameters ) {
 		camera.onBeforeRender( _this );
 
 		if ( camera.parent === null ) camera.updateMatrixWorld();
-
-		camera.matrixWorldInverse.getInverse( camera.matrixWorld );
 
 		_projScreenMatrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse );
 		_frustum.setFromMatrix( _projScreenMatrix );
@@ -1273,7 +1274,7 @@ function WebGLRenderer( parameters ) {
 		state.buffers.depth.setMask( true );
 		state.buffers.color.setMask( true );
 
-		if ( camera.isArrayCamera && camera.enabled ) {
+		if ( camera.isArrayCamera ) {
 
 			_this.setScissorTest( false );
 
@@ -1447,7 +1448,7 @@ function WebGLRenderer( parameters ) {
 
 			object.onBeforeRender( _this, scene, camera, geometry, material, group );
 
-			if ( camera.isArrayCamera && camera.enabled ) {
+			if ( camera.isArrayCamera ) {
 
 				var cameras = camera.cameras;
 
@@ -1456,14 +1457,13 @@ function WebGLRenderer( parameters ) {
 					var camera2 = cameras[ j ];
 					var bounds = camera2.bounds;
 
-					_this.setViewport(
-						bounds.x * _width * _pixelRatio, bounds.y * _height * _pixelRatio,
-						bounds.z * _width * _pixelRatio, bounds.w * _height * _pixelRatio
-					);
-					_this.setScissor(
-						bounds.x * _width * _pixelRatio, bounds.y * _height * _pixelRatio,
-						bounds.z * _width * _pixelRatio, bounds.w * _height * _pixelRatio
-					);
+					var x = bounds.x * _width * _pixelRatio;
+					var y = bounds.y * _height * _pixelRatio;
+					var width = bounds.z * _width * _pixelRatio;
+					var height = bounds.w * _height * _pixelRatio;
+
+					_this.setViewport( x, y, width, height );
+					_this.setScissor( x, y, width, height );
 					_this.setScissorTest( true );
 
 					renderObject( object, scene, camera2, geometry, material, group );
