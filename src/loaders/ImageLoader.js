@@ -51,6 +51,14 @@ Object.assign( ImageLoader.prototype, {
 
 					scope.manager.itemEnd( url );
 
+				})
+				.catch( e => {
+
+					if ( onError ) onError( e );
+
+					scope.manager.itemEnd( url );
+					scope.manager.itemError( url );
+
 				});
 
 			var image = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'img' );
