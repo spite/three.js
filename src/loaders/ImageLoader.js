@@ -40,7 +40,7 @@ function detect () {
 			canvasTest.width = 1;
 			canvasTest.height = 2;
 			var ctxTest = canvasTest.getContext( '2d' );
-			ctxTest.drawImage( imageBitmap, 0, 0 )
+			ctxTest.drawImage( res, 0, 0 )
 			var dataTest = ctxTest.getImageData( 0, 0, 1, 2 );
 			if( dataTest.data[ 0 ] === 255 && dataTest.data[ 1 ] === 0 && dataTest.data[ 2 ] === 255 ) resolve( true );
 			else resolve( false ) ;
