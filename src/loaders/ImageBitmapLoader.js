@@ -1,20 +1,22 @@
 /**
- * @author mrdoob / http://mrdoob.com/
+ * @author thespite / http://clicktorelease.com/
  */
 
 import { Cache } from './Cache';
 import { DefaultLoadingManager } from './LoadingManager';
 
 
-function ImageLoader( manager ) {
+function ImageBitmapLoader( manager ) {
 
 	this.manager = ( manager !== undefined ) ? manager : DefaultLoadingManager;
 
 }
 
-Object.assign( ImageLoader.prototype, {
+Object.assign( ImageBitmapLoader.prototype, {
 
 	load: function ( url, onLoad, onProgress, onError ) {
+
+		console.log( 'LOADING IMAGEBITMAP', url );
 
 		if ( url === undefined ) url = '';
 
@@ -40,17 +42,28 @@ Object.assign( ImageLoader.prototype, {
 
 		}
 
-		var image = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'img' );
+		fetch( url )
+		.then( res => res.blob() )
+		.then( res => createImageBitmap( res, { imageOrientation: 'flipY' } ) )
+		.then( res => {
 
-		image.addEventListener( 'load', function () {
+			Cache.add( url, res );
 
-			Cache.add( url, this );
-
-			if ( onLoad ) onLoad( this );
+			if ( onLoad ) onLoad( res );
 
 			scope.manager.itemEnd( url );
 
-		}, false );
+		})
+		.catch( e => {
+
+			if ( onError ) onError( e );
+
+			scope.manager.itemEnd( url );
+			scope.manager.itemError( url );
+
+		});
+
+		var image = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'img' );
 
 		/*
 		image.addEventListener( 'progress', function ( event ) {
@@ -60,27 +73,17 @@ Object.assign( ImageLoader.prototype, {
 		}, false );
 		*/
 
-		image.addEventListener( 'error', function ( event ) {
-
-			if ( onError ) onError( event );
-
-			scope.manager.itemEnd( url );
-			scope.manager.itemError( url );
-
-		}, false );
-
 		if ( url.substr( 0, 5 ) !== 'data:' ) {
 
-			if ( this.crossOrigin !== undefined ) image.crossOrigin = this.crossOrigin;
+			//if ( this.crossOrigin !== undefined ) image.crossOrigin = this.crossOrigin;
 
 		}
 
 		scope.manager.itemStart( url );
 
-		image.src = url;
+		/*image.src = url;*/
 
 		return image;
-
 	},
 
 	setCrossOrigin: function ( value ) {
@@ -100,4 +103,4 @@ Object.assign( ImageLoader.prototype, {
 } );
 
 
-export { ImageLoader };
+export { ImageBitmapLoader };
