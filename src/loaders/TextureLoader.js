@@ -30,7 +30,7 @@ Object.assign( TextureLoader.prototype, {
 			loader.setCrossOrigin( this.crossOrigin );
 			loader.setPath( this.path );
 
-			loader.load( url, function ( img ) {
+			loader.load( url, { flip: true }, function ( img ) {
 
 				texture.image = img;
 

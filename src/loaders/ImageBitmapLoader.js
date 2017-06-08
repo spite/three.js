@@ -14,7 +14,7 @@ function ImageBitmapLoader( manager ) {
 
 Object.assign( ImageBitmapLoader.prototype, {
 
-	load: function ( url, onLoad, onProgress, onError ) {
+	load: function ( url, options, onLoad, onProgress, onError ) {
 
 		console.log( 'LOADING IMAGEBITMAP', url );
 
@@ -44,7 +44,7 @@ Object.assign( ImageBitmapLoader.prototype, {
 
 		fetch( url )
 		.then( res => res.blob() )
-		.then( res => createImageBitmap( res, { imageOrientation: 'flipY' } ) )
+		.then( res => createImageBitmap( res, { imageOrientation: options.flip?'flipY':'none' } ) )
 		.then( res => {
 
 			Cache.add( url, res );
