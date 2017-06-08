@@ -1,4 +1,6 @@
+import { canUseImageBitmap } from './Detection';
 import { ImageLoader } from './ImageLoader';
+import { ImageBitmapLoader } from './ImageBitmapLoader';
 import { CubeTexture } from '../textures/CubeTexture';
 import { DefaultLoadingManager } from './LoadingManager';
 
@@ -18,37 +20,81 @@ Object.assign( CubeTextureLoader.prototype, {
 
 		var texture = new CubeTexture();
 
-		var loader = new ImageLoader( this.manager );
-		loader.setCrossOrigin( this.crossOrigin );
-		loader.setPath( this.path );
+		canUseImageBitmap
+		.then( () => {
 
-		var loaded = 0;
+			console.log( 'USING IMAGE BITMAP' );
 
-		function loadTexture( i ) {
+			var loader = new ImageBitmapLoader( this.manager );
+			loader.setCrossOrigin( this.crossOrigin );
+			loader.setPath( this.path );
 
-			loader.load( urls[ i ], function ( image ) {
+			var loaded = 0;
 
-				texture.images[ i ] = image;
+			function loadTexture( i ) {
 
-				loaded ++;
+				loader.load( urls[ i ], {}, function ( image ) {
 
-				if ( loaded === 6 ) {
+					texture.images[ i ] = image;
 
-					texture.needsUpdate = true;
+					loaded ++;
 
-					if ( onLoad ) onLoad( texture );
+					if ( loaded === 6 ) {
 
-				}
+						texture.needsUpdate = true;
 
-			}, undefined, onError );
+						if ( onLoad ) onLoad( texture );
 
-		}
+					}
 
-		for ( var i = 0; i < urls.length; ++ i ) {
+				}, undefined, onError );
 
-			loadTexture( i );
+			}
 
-		}
+			for ( var i = 0; i < urls.length; ++ i ) {
+
+				loadTexture( i );
+
+			}
+
+		} )
+		.catch( () => {
+
+			console.log( 'USING IMAGE' );
+
+			var loader = new ImageLoader( this.manager );
+			loader.setCrossOrigin( this.crossOrigin );
+			loader.setPath( this.path );
+
+			var loaded = 0;
+
+			function loadTexture( i ) {
+
+				loader.load( urls[ i ], function ( image ) {
+
+					texture.images[ i ] = image;
+
+					loaded ++;
+
+					if ( loaded === 6 ) {
+
+						texture.needsUpdate = true;
+
+						if ( onLoad ) onLoad( texture );
+
+					}
+
+				}, undefined, onError );
+
+			}
+
+			for ( var i = 0; i < urls.length; ++ i ) {
+
+				loadTexture( i );
+
+			}
+
+		});
 
 		return texture;
 
