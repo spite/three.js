@@ -234,7 +234,10 @@ function WebGLTextures( _gl, extensions, state, properties, capabilities, paramT
 				state.activeTexture( _gl.TEXTURE0 + slot );
 				state.bindTexture( _gl.TEXTURE_CUBE_MAP, textureProperties.__image__webglTextureCube );
 
-				_gl.pixelStorei( _gl.UNPACK_FLIP_Y_WEBGL, texture.flipY );
+				if( !texture.isImageBitmap ) {
+					debugger;
+					_gl.pixelStorei( _gl.UNPACK_FLIP_Y_WEBGL, texture.flipY );
+				}
 
 				var isCompressed = ( texture && texture.isCompressedTexture );
 				var isDataTexture = ( texture.image[ 0 ] && texture.image[ 0 ].isDataTexture );

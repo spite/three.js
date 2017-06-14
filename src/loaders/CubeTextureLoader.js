@@ -24,6 +24,7 @@ Object.assign( CubeTextureLoader.prototype, {
 		.then( () => {
 
 			console.log( 'USING IMAGE BITMAP' );
+			texture.isImageBitmap = true;
 
 			var loader = new ImageBitmapLoader( this.manager );
 			loader.setCrossOrigin( this.crossOrigin );
@@ -61,6 +62,7 @@ Object.assign( CubeTextureLoader.prototype, {
 		.catch( () => {
 
 			console.log( 'USING IMAGE' );
+			texture.isImageBitmap = false;
 
 			var loader = new ImageLoader( this.manager );
 			loader.setCrossOrigin( this.crossOrigin );
